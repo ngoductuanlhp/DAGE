@@ -51,7 +51,7 @@ DAGE is a dual-stream transformer that disentangles **global coherence** from **
 
 
 ## Updates
-* **[TBD]** Initial release with inference code and model checkpoint.
+* [Mar, 2026] Initial release with inference, training code and model checkpoint.
 
 
 ## Quick Start
