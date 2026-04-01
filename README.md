@@ -69,7 +69,7 @@ conda activate dage
 This creates a conda environment with Python 3.10, PyTorch 2.10.0 (CUDA 13.0), and all required dependencies.
 
 
-### 🎬 3. Run Inference
+### 🎬 2. Run Inference
 
 Run on the included demo data or your own video/image folder:
 
