@@ -1,0 +1,251 @@
+# Usage:
+# sh training_unip/train_bf16.sh training_unip/training_configs/train_dage_stage1.yaml training_unip/train_dage_stage1.py
+# sh training_unip/train_multinode.sh training_unip/training_configs/train_dage_stage1.yaml training_unip/train_dage_stage1.py
+
+datasets1: # dataset for distilling from Pi3 Teacher (low-to-middle resolution)
+  dataset: [
+
+      "WeightedConcatDataset(
+        VideoDepthCO3DNew(T=10, stride_range=(1, 25), use_cut3r_frame_sampling=True, video_prob=0.5, fix_interval_prob=0.5, block_shuffle=None),  
+        VideoDepthWildRGBDNew(T=10, stride_range=(1, 25), use_cut3r_frame_sampling=True, video_prob=0.5, fix_interval_prob=0.5, block_shuffle=None),
+
+        VideoDepthArkitScenesNew(T=10, stride_range=(1, 8), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.5, block_shuffle=16),
+        VideoDepthScanNetPPNew(T=10, stride_range=(1, 3), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.5, block_shuffle=16),
+        VideoDepthScanNetNew(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=16),
+        VideoDepthHypersimNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=0.5, fix_interval_prob=0.5, block_shuffle=16),
+
+        VideoDepthMP3DNew(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=16),
+
+
+        VideoDepthBlendedMVSNew(T=10, stride_range=(1, 2)),
+        VideoDepthMegaDepthNew(T=10, stride_range=(1, 4)),
+
+
+        VideoDepthWaymoNew(T=10, stride_range=(1, 8), use_cut3r_frame_sampling=True, video_prob=0.9, fix_interval_prob=0.9, block_shuffle=16),
+        VideoDepthVirtualKitti2New(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=0.9, block_shuffle=None), 
+        VideoDepthTartanairNew(T=10, stride_range=(1, 20), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.8, block_shuffle=16),
+
+        VideoDepthDynamicReplicaNew(T=10, stride_range=(1, 16), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthSpringNew(T=10, stride_range=(1, 16), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthBedlamNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthMVSSynthNew(T=10, stride_range=(1, 4), high_resolution=True, use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthGTASFMSNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=None),
+        VideoDepthPointOdysseyNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+
+        weights=[94.0, 56.0, 56.0, 17.0, 23.0, 12.0, 19.0, 22.0, 22.0, 50.0, 6.0, 56.0, 26.0, 1.2, 20.0, 2.4, 10.0, 24.0],
+        moge_augmentation=dict(
+          use_flip_augmentation=false,
+          center_augmentation=0.0,
+          fov_range_absolute_min=30,
+          fov_range_absolute_max=150,
+          fov_range_relative_min=0.7,
+          fov_range_relative_max=1.0,
+          image_augmentation=['jittering','jpeg_loss','blurring'],
+          depth_interpolation='nearest',
+          clamp_max_depth=1000.0,
+          area_range=[100000, 255000],
+          aspect_ratio_range=[0.5, 2.0],
+        ),
+        specific_batch_size=48,
+        specific_dataset_frame_range=[2, 24]
+      )"
+
+      # "WeightedConcatDataset(
+      #   VideoDepthScanNetPPNew(T=10, stride_range=(1, 3), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.5, block_shuffle=16),
+
+      #   weights=[1.0],
+      #   moge_augmentation=dict(
+      #     use_flip_augmentation=false,
+      #     center_augmentation=0.0,
+      #     fov_range_absolute_min=30,
+      #     fov_range_absolute_max=150,
+      #     fov_range_relative_min=0.7,
+      #     fov_range_relative_max=1.0,
+      #     image_augmentation=['jittering','jpeg_loss','blurring'],
+      #     depth_interpolation='nearest',
+      #     clamp_max_depth=1000.0,
+      #     area_range=[100000, 255000],
+      #     aspect_ratio_range=[0.5, 2.0],
+      #   ),
+      #   specific_batch_size=48,
+      #   specific_dataset_frame_range=[2, 24]
+      # )"
+    ]
+  dataset_weights: [1]
+  dataset_workers: [10]
+
+datasets2: # dataset for training from middle-to-high resolution
+  dataset: [
+      "WeightedConcatDataset(
+        VideoDepthCO3DNew(T=10, stride_range=(1, 25), use_cut3r_frame_sampling=True, video_prob=0.5, fix_interval_prob=0.5, block_shuffle=None),  
+        VideoDepthWildRGBDNew(T=10, stride_range=(1, 25), use_cut3r_frame_sampling=True, video_prob=0.5, fix_interval_prob=0.5, block_shuffle=None),
+
+        VideoDepthArkitScenesNew(T=10, stride_range=(1, 8), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.5, block_shuffle=16),
+        VideoDepthScanNetPPNew(T=10, stride_range=(1, 3), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.5, block_shuffle=16),
+        VideoDepthScanNetNew(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=16),
+        VideoDepthHypersimNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=0.5, fix_interval_prob=0.5, block_shuffle=16),
+
+        VideoDepthMP3DNew(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=16),
+
+        VideoDepthBlendedMVSNew(T=10, stride_range=(1, 2)),
+        VideoDepthMegaDepthNew(T=10, stride_range=(1, 4)),
+
+        VideoDepthWaymoNew(T=10, stride_range=(1, 8), use_cut3r_frame_sampling=True, video_prob=0.9, fix_interval_prob=0.9, block_shuffle=16),
+        VideoDepthVirtualKitti2New(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=0.9, block_shuffle=None), 
+        VideoDepthTartanairNew(T=10, stride_range=(1, 20), use_cut3r_frame_sampling=True, video_prob=0.8, fix_interval_prob=0.8, block_shuffle=16),
+
+        VideoDepthDynamicReplicaNew(T=10, stride_range=(1, 16), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthSpringNew(T=10, stride_range=(1, 16), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthBedlamNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthMVSSynthNew(T=10, stride_range=(1, 4), high_resolution=True, use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+        VideoDepthGTASFMSNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=None),
+        VideoDepthPointOdysseyNew(T=10, stride_range=(1, 4), use_cut3r_frame_sampling=True, video_prob=1.0, fix_interval_prob=1.0, block_shuffle=None),
+
+        weights=[94.0, 56.0, 78.0, 17.0, 23.0, 12.0, 29.0, 22.0, 22.0, 56.0, 6.0, 56.0, 26.0, 1.2, 30.0, 2.4, 10.0, 24.0],
+        moge_augmentation=dict(
+          use_flip_augmentation=false,
+          center_augmentation=0.0,
+          fov_range_absolute_min=30,
+          fov_range_absolute_max=150,
+          fov_range_relative_min=0.7,
+          fov_range_relative_max=1.0,
+          image_augmentation=['jittering','jpeg_loss','blurring'],
+          depth_interpolation='nearest',
+          clamp_max_depth=1000.0,
+          area_range=[300000, 900000],
+          aspect_ratio_range=[0.5, 2.0],
+        ),
+        specific_batch_size=24,
+        specific_dataset_frame_range=[2, 6]
+      )"
+      # "WeightedConcatDataset(
+      #   VideoDepthScanNetNew(T=10, stride_range=(1, 5), use_cut3r_frame_sampling=True, video_prob=0.6, fix_interval_prob=0.6, block_shuffle=16),
+
+      #   weights=[1.0],
+      #   moge_augmentation=dict(
+      #     use_flip_augmentation=false,
+      #     center_augmentation=0.0,
+      #     fov_range_absolute_min=30,
+      #     fov_range_absolute_max=150,
+      #     fov_range_relative_min=0.7,
+      #     fov_range_relative_max=1.0,
+      #     image_augmentation=['jittering','jpeg_loss','blurring'],
+      #     depth_interpolation='nearest',
+      #     clamp_max_depth=1000.0,
+      #     area_range=[300000, 900000],
+      #     aspect_ratio_range=[0.5, 2.0],
+      #   ),
+      #   specific_batch_size=24,
+      #   specific_dataset_frame_range=[2, 6]
+      # )"
+    ]
+
+  dataset_weights: [1]
+  dataset_workers: [10]
+
+use_dynamic_batch_size: true
+temporal_frames: 24
+frame_range: [2, 24]
+
+use_moge: true
+use_edge_loss: true
+use_real_loss: true
+camera_loss_weight: 0.1
+feat_distill_type: "cosine"
+metric_scale_loss: true
+
+# Mirror model block from original config
+model:
+  name: DAGE
+  config: 
+    pos_type: rope100
+    hr_encoder:
+      backbone: dinov2_vitl14
+      dim_out: 1024
+      intermediate_layers: [5, 11, 17, 23]
+    hr_neck:
+      dim_in: [1026, 2, 2, 2, 2]
+      dim_out: null
+      dim_res_blocks: [1024, 256, 128, 64, 32]
+      num_res_blocks: [0, 2, 2, 2, 0]
+      res_block_hidden_norm: none
+      res_block_in_norm: none
+      resamplers: [conv_transpose, conv_transpose, conv_transpose, bilinear]
+    hr_points_head:
+      dim_in: [1024, 256, 128, 64, 32]
+      dim_out: [null, null, null, null, 3]
+      dim_res_blocks: [1024, 256, 128, 64, 32]
+      num_res_blocks: [0, 1, 1, 1, 0]
+      res_block_hidden_norm: none
+      res_block_in_norm: none
+      resamplers: [conv_transpose, conv_transpose, conv_transpose, bilinear]
+    hr_mask_head:
+      dim_in: [1024, 256, 128, 64, 32]
+      dim_out: [null, null, null, null, 1]
+      dim_res_blocks: [1024, 256, 128, 64, 32]
+      num_res_blocks: [0, 1, 1, 1, 0]
+      res_block_hidden_norm: none
+      res_block_in_norm: none
+      resamplers: [conv_transpose, conv_transpose, conv_transpose, bilinear]
+    hr_scale_head:
+      dims: [1024, 1024, 1024, 1]
+    remap_output: exp
+    adapter:
+      model_name: ContextTransformerDecoder
+      in_dim: 1024
+      out_dim: 1024
+      dec_embed_dim: 1024
+      depth: 3
+      dec_num_heads: 16
+      use_checkpoint: true
+      cross_first: true
+      y_in_dim: 2048
+      rope: null
+      use_pe: false
+      use_cls_token: false
+      use_rope: true
+      use_rope_interpolated: true
+
+# Cache directory for Hugging Face models (to avoid repeated downloads)
+hf_cache_dir: "/workspace/cache/huggingface"  # Change this to your preferred cache location
+
+# Model configuration
+noise_type: "zeros" 
+pretrained_model_name_or_path: "checkpoints/merged_pi3_mogev2.pt" # the merged weight from pi3 and mogev2, we start training from this checkpoint
+
+# Training configuration
+# max_train_steps: 40000
+max_train_steps: 40000 # this is for 2 nodes of 16 GPUs in totals
+effective_batch_size: null  # we use gradient accumulation to scale the batch size
+batch_size_per_gpu: 48   # this is the "actual" batch size per GPU iter
+dataloader_num_workers: 1
+
+# Resume from checkpoint, you can use latest to resume from the latest checkpoint
+resume_from_checkpoint: null
+
+# Save checkpoints for every 1000 steps, only save the latest checkpoint
+checkpointing_steps: 1000
+checkpoints_total_limit: 1 # NOTE save all for debugging
+
+# Don't change these unless you know what you are doing
+gradient_checkpointing: true
+learning_rate: 1.0e-04 # high learning rate
+# learning_rate: 5.0e-05 # low learning rate
+
+lr_exp_warmup_steps: 1000
+lr_total_iter_length: ${max_train_steps}  # Will match max_train_steps
+adam_beta1: 0.9
+adam_beta2: 0.95
+adam_weight_decay: 5.0e-2
+adam_epsilon: 1.0e-08
+max_grad_norm: 1.0
+seed: 42
+mixed_precision: "bf16"
+report_to: "tensorboard"
+tracker_project_name: "dage-stage1"
+enable_xformers_memory_efficient_attention: true
+
+# # Output directory
+output_dir: model-finetuned/train_dage_stage1_${max_train_steps}
+logging_dir: "logs"
+

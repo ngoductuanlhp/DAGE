@@ -1,0 +1,50 @@
+model:
+  name: DAGE
+  config: 
+    pos_type: rope100
+    hr_encoder:
+      backbone: dinov2_vitl14
+      dim_out: 1024
+      intermediate_layers: [5, 11, 17, 23]
+    hr_neck:
+      dim_in: [1026, 2, 2, 2, 2]
+      dim_out: null
+      dim_res_blocks: [1024, 256, 128, 64, 32]
+      num_res_blocks: [0, 2, 2, 2, 0]
+      res_block_hidden_norm: none
+      res_block_in_norm: none
+      resamplers: [conv_transpose, conv_transpose, conv_transpose, bilinear]
+    hr_points_head:
+      dim_in: [1024, 256, 128, 64, 32]
+      dim_out: [null, null, null, null, 3]
+      dim_res_blocks: [1024, 256, 128, 64, 32]
+      num_res_blocks: [0, 1, 1, 1, 0]
+      res_block_hidden_norm: none
+      res_block_in_norm: none
+      resamplers: [conv_transpose, conv_transpose, conv_transpose, bilinear]
+    hr_mask_head:
+      dim_in: [1024, 256, 128, 64, 32]
+      dim_out: [null, null, null, null, 1]
+      dim_res_blocks: [1024, 256, 128, 64, 32]
+      num_res_blocks: [0, 1, 1, 1, 0]
+      res_block_hidden_norm: none
+      res_block_in_norm: none
+      resamplers: [conv_transpose, conv_transpose, conv_transpose, bilinear]
+    hr_scale_head:
+      dims: [1024, 1024, 1024, 1]
+    remap_output: exp
+    adapter:
+      model_name: ContextTransformerDecoder
+      in_dim: 1024
+      out_dim: 1024
+      dec_embed_dim: 1024
+      depth: 3
+      dec_num_heads: 16
+      use_checkpoint: true
+      cross_first: true
+      y_in_dim: 2048
+      rope: null
+      use_pe: false
+      use_cls_token: false
+      use_rope: true
+      use_rope_interpolated: true
