@@ -40,7 +40,7 @@
     </p>
 </div>
 
-## Overview
+## 🧭 Overview
 
 DAGE is a dual-stream transformer that disentangles **global coherence** from **fine detail** for geometry estimation from uncalibrated multi-view/video inputs.
 
@@ -50,13 +50,13 @@ DAGE is a dual-stream transformer that disentangles **global coherence** from **
 - Scales resolution and clip length independently, supports inputs up to 2K, and achieves state-of-the-art on video geometry estimation and multi-view reconstruction.
 
 
-## Updates
+## 📢 Updates
 * [Mar, 2026] Initial release with inference, training code and model checkpoint.
 
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Clone & Install Dependencies
+### 🛠️ 1. Clone & Install Dependencies
 
 ```bash
 git clone https://github.com/ngoductuanlhp/DAGE.git
@@ -69,7 +69,7 @@ conda activate dage
 This creates a conda environment with Python 3.10, PyTorch 2.10.0 (CUDA 13.0), and all required dependencies.
 
 
-### 3. Run Inference
+### 🎬 3. Run Inference
 
 Run on the included demo data or your own video/image folder:
 
@@ -109,9 +109,9 @@ python inference/infer_dage.py --checkpoint TuanNgo/DAGE --hr_max_size 1920 --ch
 - `<name>_depth_colored.mp4` — colorized depth video
 - `<name>.npy` — dictionary with `pointmap`, `pointmap_global`, `pointmap_mask`, `rgb`, and `extrinsics`
 
-### 3. Model Checkpoints
+### 🤗 3. Model Checkpoints
 
-Our checkpoint is available at HuggingFace Hub: [TuanNgo/DAGE](https://huggingface.co/TuanNgo/DAGE)
+Our checkpoint is available at 🤗 Hugging Face Hub: [TuanNgo/DAGE](https://huggingface.co/TuanNgo/DAGE)
 
 Or you can manually download the checkpoint and place it in the `checkpoints/` directory:
 
@@ -122,9 +122,9 @@ gdown --fuzzy https://drive.google.com/file/d/1BsBJ7MTarlBP5RjCVfPQoQMsCxccBabF/
 ```
 
 
-## Detailed Usage
+## 📘 Detailed Usage
 
-### Model Input & Output
+### 🔄 Model Input & Output
 
 * **Input**: `torch.Tensor` of shape `(B, N, 3, H, W)` with pixel values in `[0, 1]`.
 * **Output**: A `dict` with the following keys:
@@ -138,7 +138,7 @@ gdown --fuzzy https://drive.google.com/file/d/1BsBJ7MTarlBP5RjCVfPQoQMsCxccBabF/
 | `global_points` | `(B, N, H, W, 3)` | 3D points in world space (after `infer()`) |
 | `mask` | `(B, N, H, W)` | Binary confidence mask (after `infer()`) |
 
-### Example Code Snippet
+### 💡 Example Code Snippet
 
 ```python
 import torch
@@ -185,12 +185,12 @@ camera_poses = output['camera_poses']   # (N, 4, 4)
 mask = output['mask']                   # (N, H, W)
 ```
 
-### Resolution Handling
+### 📐 Resolution Handling
 
 Both streams require resolutions that are multiples of the patch size (14). The HR stream defaults to 3600 tokens total (e.g., 840x840 for square images, 630x1120 for 9:16), but can be overridden with `--hr_max_size`.
 
 
-## Visualization
+## 👀 Visualization
 
 We use [viser](https://github.com/nerfstudio-project/viser) for interactive 3D point cloud visualization. The inference script saves `.npy` files that can be directly visualized.
 
@@ -217,17 +217,17 @@ Both scripts launch a viser server (default port `7891`) accessible via browser.
 | `--port` | `7891` | Viser server port |
 
 
-## Training
+## 🎓 Training
 
 See [docs/TRAINING.md](docs/TRAINING.md) for detailed instructions on data preparation, loss functions, and configuration.
 
 
-## Evaluation
+## 📊 Evaluation
 
 See [docs/EVALUATION.md](docs/EVALUATION.md) for detailed instructions.
 
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 DAGE/
@@ -259,7 +259,7 @@ DAGE/
 ```
 
 
-## Acknowledgements
+## 🙏 Acknowledgements
 
 Our work builds upon several open-source projects:
 
@@ -270,7 +270,7 @@ Our work builds upon several open-source projects:
 * [DINOv2](https://github.com/facebookresearch/dinov2)
 
 
-## Citation
+## 📝 Citation
 
 If you find our work useful, please consider citing:
 
@@ -284,6 +284,6 @@ If you find our work useful, please consider citing:
 ```
 
 
-## License
+## ⚖️ License
 
 The code in this repository is released under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license, unless otherwise specified.
