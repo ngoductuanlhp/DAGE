@@ -194,7 +194,7 @@ Both streams require resolutions that are multiples of the patch size (14). The 
 
 We use [viser](https://github.com/nerfstudio-project/viser) for interactive 3D point cloud visualization. The inference script saves `.npy` files that can be directly visualized.
 
-**Dynamic scenes** — renders pointmaps sequentially with playback controls (timestep slider, play/pause, FPS control):
+**Dynamic scenes** — renders pointmaps sequentially with playback controls:
 
 ```bash
 python visualization/vis_pointmaps.py --data_path quali_results/dage/<name>.npy
@@ -205,16 +205,6 @@ python visualization/vis_pointmaps.py --data_path quali_results/dage/<name>.npy
 ```bash
 python visualization/vis_pointmaps_all.py --data_path quali_results/dage/<name>.npy
 ```
-
-Both scripts launch a viser server (default port `7891`) accessible via browser. Common options:
-
-| Argument | Default | Description |
-| :--- | :--- | :--- |
-| `--downsample_ratio` | `2` | Spatial downsampling for faster rendering |
-| `--point_size` | `0.002` / `0.01` | Point size in the viewer |
-| `--scale_factor` | `1.0` | Scale the point cloud |
-| `--sample_num` | all | Uniformly sample N frames |
-| `--port` | `7891` | Viser server port |
 
 
 ## 🎓 Training
