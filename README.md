@@ -68,15 +68,6 @@ conda activate dage
 
 This creates a conda environment with Python 3.10, PyTorch 2.10.0 (CUDA 13.0), and all required dependencies.
 
-### 2. Download Checkpoints
-
-Download the model checkpoint and place it in the `checkpoints/` directory:
-
-```bash
-mkdir -p checkpoints
-# Download from Hugging Face (TBD)
-gdown --fuzzy https://drive.google.com/file/d/1BsBJ7MTarlBP5RjCVfPQoQMsCxccBabF/view?usp=sharing -O ./checkpoints/
-```
 
 ### 3. Run Inference
 
@@ -89,23 +80,23 @@ bash demo.sh
 # Or run directly with custom arguments
 
 # Default: LR at 252px, HR at 3600 tokens (~840x840 for square images)
-python inference/infer_dage.py --checkpoint checkpoints/model.pt
+python inference/infer_dage.py --checkpoint TuanNgo/DAGE
 
 # Higher LR resolution (better camera poses, more compute)
-python inference/infer_dage.py --checkpoint checkpoints/model.pt --lr_max_size 518
+python inference/infer_dage.py --checkpoint TuanNgo/DAGE --lr_max_size 518
 
 # Higher HR resolution up to 2K (sharper pointmaps)
-python inference/infer_dage.py --checkpoint checkpoints/model.pt --hr_max_size 1920
+python inference/infer_dage.py --checkpoint TuanNgo/DAGE --hr_max_size 1920
 
 # Memory-efficient chunking for GPUs with <40GB VRAM (lower chunk_size if OOM)
-python inference/infer_dage.py --checkpoint checkpoints/model.pt --hr_max_size 1920 --chunk_size 8
+python inference/infer_dage.py --checkpoint TuanNgo/DAGE --hr_max_size 1920 --chunk_size 8
 ```
 
 **Arguments:**
 
 | Argument | Default | Description |
 | :--- | :--- | :--- |
-| `--checkpoint` | `checkpoints/model.pt` | Path to model checkpoint |
+| `--checkpoint` | `TuanNgo/DAGE` | Path to model checkpoint |
 | `--output_dir` | `quali_results/dage` | Directory to save results |
 | `--lr_max_size` | `252` | Max resolution for the LR stream |
 | `--hr_max_size` | `None` | Max resolution for the HR stream (auto-computed from 3600 tokens if not set) |
@@ -117,6 +108,18 @@ python inference/infer_dage.py --checkpoint checkpoints/model.pt --hr_max_size 1
 - `<name>_disp_colored.mp4` — colorized disparity video
 - `<name>_depth_colored.mp4` — colorized depth video
 - `<name>.npy` — dictionary with `pointmap`, `pointmap_global`, `pointmap_mask`, `rgb`, and `extrinsics`
+
+### 3. Model Checkpoints
+
+Our checkpoint is available at HuggingFace Hub: [TuanNgo/DAGE](https://huggingface.co/TuanNgo/DAGE)
+
+Or you can manually download the checkpoint and place it in the `checkpoints/` directory:
+
+```bash
+mkdir -p checkpoints
+
+gdown --fuzzy https://drive.google.com/file/d/1BsBJ7MTarlBP5RjCVfPQoQMsCxccBabF/view?usp=sharing -O ./checkpoints/
+```
 
 
 ## Detailed Usage
@@ -207,7 +210,7 @@ Both scripts launch a viser server (default port `7891`) accessible via browser.
 
 | Argument | Default | Description |
 | :--- | :--- | :--- |
-| `--downsample_ratio` | `1` | Spatial downsampling for faster rendering |
+| `--downsample_ratio` | `2` | Spatial downsampling for faster rendering |
 | `--point_size` | `0.002` / `0.01` | Point size in the viewer |
 | `--scale_factor` | `1.0` | Scale the point cloud |
 | `--sample_num` | all | Uniformly sample N frames |
@@ -283,4 +286,4 @@ If you find our work useful, please consider citing:
 
 ## License
 
-TBD
+The code in this repository is released under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license, unless otherwise specified.

@@ -5,7 +5,7 @@ set -e
 
 # NOTE Run with default settings on demo data
 CUDA_VISIBLE_DEVICES=0 python inference/infer_dage.py \
-    --checkpoint="checkpoints/model.pt" \
+    --checkpoint="TuanNgo/DAGE" \
     --output_dir="quali_results/dage" 
 
 # NOTE Run with higher LR resolution (better camera poses, more compute)
