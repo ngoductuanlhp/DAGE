@@ -51,9 +51,8 @@ conda activate dage
 echo "Installing pytorch..."
 pip install torch==2.10.0 torchvision==0.25.0 torchaudio==2.10.0 --index-url https://download.pytorch.org/whl/cu130
 
-
-# Install mkl
-conda install -y "mkl<2024.1" "intel-openmp<2024.1"
+echo "Installing xformers..."
+pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu130
 
 # Install other dependencies and local package
 echo "Installing local package..."
@@ -66,9 +65,9 @@ pip install evo einops kornia roma gdown
 pip install decord h5py mediapy fire
 pip install viser pyliblzfse open3d
 
-# NOTE for sky segmentation
-pip install albumentations
-pip install segmentation_models_pytorch
+# # NOTE for sky segmentation (optional for training)
+# pip install albumentations
+# pip install segmentation_models_pytorch
 pip install numpy==1.26.4 --force-reinstall
 
 # sudo apt install -y ffmpeg

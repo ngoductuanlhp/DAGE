@@ -29,8 +29,6 @@ import logging
 from tqdm import tqdm
 import glob
 
-import albumentations as A
-import segmentation_models_pytorch as smp
 
 import numpy as np
 import torch

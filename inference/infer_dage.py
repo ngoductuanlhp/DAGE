@@ -110,7 +110,7 @@ if "__main__" == __name__:
             print(f"Process video {video_name} of length {num_frames}: HR stream at {hr_height}x{hr_width} with num_tokens {hr_num_tokens}, LR stream at {lr_height}x{lr_width}")
 
             chunk_size = args.chunk_size
-            output = predictor.infer(hr_video=hr_video, lr_video=lr_video, lr_max_size=lr_max_size, hr_num_tokens=hr_num_tokens, chunk_size=chunk_size, refine=False)
+            output = predictor.infer(hr_video=hr_video, lr_video=lr_video, lr_max_size=lr_max_size, hr_num_tokens=hr_num_tokens, chunk_size=chunk_size, refine=False, enable_autocast=True)
 
             print(f"Done inference, saving results...")
             
