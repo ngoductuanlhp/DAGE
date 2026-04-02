@@ -462,7 +462,7 @@ class DAGE(nn.Module):
                 base_h = hr_max_size // self.patch_size
                 base_w = int(base_h / aspect_ratio)
 
-        print(f"HR stream: {base_h*14}x{base_w*14} with num_tokens {base_h*base_w}")
+        # print(f"HR stream: {base_h*14}x{base_w*14} with num_tokens {base_h*base_w}")
 
         # NOTE Backbones encoding ######################################
         features, cls_token = self.hr_encoder(
@@ -818,7 +818,7 @@ class DAGE(nn.Module):
 
         lr_x = lr_x.reshape(batch_size * num_frames, 3, lr_height, lr_width)
 
-        print(f"LR stream: {lr_height}x{lr_width}")
+        # print(f"LR stream: {lr_height}x{lr_width}")
         lr_hidden = self.encoder(lr_x, is_training=True)
         if isinstance(lr_hidden, dict):
             lr_hidden = lr_hidden["x_norm_patchtokens"]
@@ -855,7 +855,6 @@ class DAGE(nn.Module):
                 - (training only) student_feat_for_distill: (B*N, 4*H_lr*W_lr, C)
                 - (training only) patch_start_idx: int
         """
-        # hr_x = x.clone()
         if lr_video is None:
             lr_video = hr_video.clone()
 
@@ -874,7 +873,6 @@ class DAGE(nn.Module):
 
         # NOTE LR stream ##############################################
         lr_hidden, lr_pos, lr_student_feat_for_distill = self.lr_stream(lr_x)
-        # lr_token_shape = tuple(lr_hidden.shape[-2:])
         ################################################################
 
         # NOTE HR stream ##############################################
