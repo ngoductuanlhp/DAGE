@@ -198,12 +198,18 @@ We use [viser](https://github.com/nerfstudio-project/viser) for interactive 3D p
 
 ```bash
 python visualization/vis_pointmaps.py --data_path quali_results/dage/<name>.npy
+
+# NOTE removing floating points at edges (if exist)
+# python visualization/vis_pointmaps.py --data_path quali_results/dage/<name>.npy --filter_edge
 ```
 
 **Static scenes** — merges all frames into a single point cloud in a shared coordinate frame:
 
 ```bash
 python visualization/vis_pointmaps_all.py --data_path quali_results/dage/<name>.npy
+
+# NOTE removing floating points at edges (if exist)
+# python visualization/vis_pointmaps_all.py --data_path quali_results/dage/<name>.npy --filter_edge
 ```
 
 

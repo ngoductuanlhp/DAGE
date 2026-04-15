@@ -46,6 +46,8 @@ if __name__ == '__main__':
     parser.add_argument("--edge_dilation_radius", type=int, default=3, help='remove floater points for visualization')
     parser.add_argument("--keyframe_interval", type=int, default=5, help='accumulate pointmaps at frames 0, N, 2N, ...; other frames show single frame')
     parser.add_argument("--port", type=int, default=7891, help='port')
+    parser.add_argument("--filter_edge", action='store_true', help='filter out edges from the point map')
+    parser.add_argument("--filter_edge_dilation_radius", type=int, default=3, help='dilation radius for edge filtering')
     args = parser.parse_args()
 
     print(f"Loading from {args.data_path}")
@@ -53,9 +55,9 @@ if __name__ == '__main__':
 
     depth_map = None
     if 'pointmap' in data:
-        point_map = data['pointmap'].astype(np.float32)
-        mask = data['pointmap_mask'].astype(bool)
-        depth_map = point_map[..., 2:3]
+        local_point_map = data['pointmap'].astype(np.float32)
+        local_mask = data['pointmap_mask'].astype(bool)
+        depth_map = local_point_map[..., 2:3]
 
     if 'pointmap_global' in data:
         point_map = data['pointmap_global'].astype(np.float32)
@@ -219,10 +221,18 @@ if __name__ == '__main__':
 
     for i in tqdm(range(num_frames)):
         valid_mask = mask[i]
-        position = point_map[i][valid_mask].reshape(-1, 3).cpu().numpy()
-        color = frames[i][valid_mask].reshape(-1, 3).cpu().numpy().astype(np.uint8)
+        position = point_map[i]
+        color = frames[i]
 
-        # print(f"frame {i} has {position.shape[0]} points")
+        if args.filter_edge:
+            assert depth_map is not None
+            depth_map_i = depth_map[i].squeeze(-1)
+            edge_mask = compute_edge(depth_map_i)
+            edge_mask = dilation_mask(edge_mask, kernel_size=args.filter_edge_dilation_radius)
+            valid_mask = valid_mask & ~edge_mask
+
+        position = position[valid_mask].reshape(-1, 3).cpu().numpy()
+        color = color[valid_mask].reshape(-1, 3).cpu().numpy().astype(np.uint8)
 
         frame_nodes.append(server.scene.add_frame(
             f"/frames/t{i}",

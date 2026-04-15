@@ -8,6 +8,7 @@ Default voxel size = (bbox diagonal) / 200.
 
 Example:
   python visualization/vis_pointmaps_all.py --data_path tmp/da3_re10k/scene.npy
+  python visualization/vis_pointmaps_all.py --data_path scene.npy --filter_edge
 """
 
 from __future__ import annotations
@@ -24,13 +25,24 @@ import torch.nn.functional as F
 import viser
 import viser.transforms as tf
 
+from kornia.filters import canny
+from kornia.morphology import dilation
+
 
 project_root = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(project_root)
 
 
-# from src.utils.cuda_timer import CUDATimer
+def compute_edge(depth: torch.Tensor) -> torch.Tensor:
+    """Binary edge map from depth (H, W) using Kornia Canny."""
+    magnitude, edges = canny(depth[None, None, :, :], low_threshold=0.4, high_threshold=0.5)
+    return edges[0, 0] > 0
 
+
+def dilation_mask(mask: torch.Tensor, kernel_size: int = 3) -> torch.Tensor:
+    mask = mask.float()
+    mask = dilation(mask[None, None, :, :], torch.ones((kernel_size, kernel_size), device=mask.device))
+    return mask[0, 0] > 0.5
 
 
 def main() -> None:
@@ -68,6 +80,17 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=7891)
 
     parser.add_argument(
+        "--filter_edge",
+        action="store_true",
+        help="Filter out depth edges (floaters) using Canny on per-pixel Z (same as vis_pointmaps.py).",
+    )
+    parser.add_argument(
+        "--filter_edge_dilation_radius",
+        type=int,
+        default=3,
+        help="Dilation kernel size for edge filtering (odd integer, same semantics as vis_pointmaps).",
+    )
+    parser.add_argument(
         "--device",
         type=str,
         default="cuda",
@@ -78,9 +101,11 @@ def main() -> None:
     print(f"Loading {args.data_path}")
     data = np.load(args.data_path, allow_pickle=True).item()
 
+    depth_map = None
     if "pointmap" in data:
         point_map = data["pointmap"].astype(np.float32)
         mask = data["pointmap_mask"].astype(bool)
+        depth_map = point_map[..., 2:3]
     if "pointmap_global" in data:
         point_map = data["pointmap_global"].astype(np.float32)
         mask = data["pointmap_mask"].astype(bool)
@@ -100,6 +125,9 @@ def main() -> None:
 
     point_map = torch.tensor(point_map[indices]).float()
     mask = torch.tensor(mask[indices]).bool()
+
+    if depth_map is not None:
+        depth_map = torch.tensor(depth_map[indices]).float()
     if extrinsics is not None:
         extrinsics = extrinsics[indices]
 
@@ -138,6 +166,9 @@ def main() -> None:
         )
         frames = F.interpolate(frames.permute(0, 3, 1, 2), (H, W)).permute(0, 2, 3, 1)
         mask = F.interpolate(mask.float()[:, None], (H, W))[:, 0] > 0.5
+        if depth_map is not None:
+            depth_map = F.interpolate(depth_map.permute(0,3,1,2), (H, W)).permute(0,2,3,1)
+
 
     conf_t: torch.Tensor | None = None
     if "conf" in data:
@@ -153,6 +184,12 @@ def main() -> None:
     chunks_xy: list[np.ndarray] = []
     for i in range(num_frames):
         valid = mask[i]
+        if args.filter_edge:
+            assert depth_map is not None
+            depth_map_i = depth_map[i].squeeze(-1)
+            edge_mask = compute_edge(depth_map_i)
+            edge_mask = dilation_mask(edge_mask, kernel_size=args.filter_edge_dilation_radius)
+            valid = valid & ~edge_mask
         n_valid = int(valid.sum().item())
         chunks_p.append(point_map[i][valid].detach().cpu().numpy())
         chunks_c.append(frames[i][valid].detach().cpu().numpy().astype(np.uint8))
