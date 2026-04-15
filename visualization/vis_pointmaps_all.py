@@ -69,7 +69,7 @@ def main() -> None:
     parser.add_argument(
         "--max_points",
         type=int,
-        default=1000000,
+        default=2000000,
         help="If more points than this, randomly subsample (0 = no limit).",
     )
     parser.add_argument(
@@ -188,7 +188,8 @@ def main() -> None:
             assert depth_map is not None
             depth_map_i = depth_map[i].squeeze(-1)
             edge_mask = compute_edge(depth_map_i)
-            edge_mask = dilation_mask(edge_mask, kernel_size=args.filter_edge_dilation_radius)
+            if args.filter_edge_dilation_radius > 1:
+                edge_mask = dilation_mask(edge_mask, kernel_size=args.filter_edge_dilation_radius)
             valid = valid & ~edge_mask
         n_valid = int(valid.sum().item())
         chunks_p.append(point_map[i][valid].detach().cpu().numpy())

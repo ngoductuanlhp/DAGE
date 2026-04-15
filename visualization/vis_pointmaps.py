@@ -47,7 +47,7 @@ if __name__ == '__main__':
     parser.add_argument("--keyframe_interval", type=int, default=5, help='accumulate pointmaps at frames 0, N, 2N, ...; other frames show single frame')
     parser.add_argument("--port", type=int, default=7891, help='port')
     parser.add_argument("--filter_edge", action='store_true', help='filter out edges from the point map')
-    parser.add_argument("--filter_edge_dilation_radius", type=int, default=3, help='dilation radius for edge filtering')
+    parser.add_argument("--filter_edge_dilation_radius", type=int, default=1, help='dilation radius for edge filtering')
     args = parser.parse_args()
 
     print(f"Loading from {args.data_path}")
@@ -228,7 +228,8 @@ if __name__ == '__main__':
             assert depth_map is not None
             depth_map_i = depth_map[i].squeeze(-1)
             edge_mask = compute_edge(depth_map_i)
-            edge_mask = dilation_mask(edge_mask, kernel_size=args.filter_edge_dilation_radius)
+            if args.filter_edge_dilation_radius > 1:
+                edge_mask = dilation_mask(edge_mask, kernel_size=args.filter_edge_dilation_radius)
             valid_mask = valid_mask & ~edge_mask
 
         position = position[valid_mask].reshape(-1, 3).cpu().numpy()
